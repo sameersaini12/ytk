@@ -1,0 +1,21 @@
+/* .profile-upper-background {
+    width: 100vw;
+    height: 300px;
+    background-color: white;
+  } */
+  .profile-upper-background:after {
+    content: ' ';
+    border-top: 300px solid #24294f;
+    border-right: 100vw solid transparent;
+    width: 0;
+    position: absolute;
+  }
+
+  .profileBox__tweetButton {
+    background-color: var(--twitter-color) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 700 !important;
+    text-transform: inherit !important;
+    border-radius: 30px !important;
+  }
