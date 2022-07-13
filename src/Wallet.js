@@ -61,7 +61,7 @@ function Wallet({defaultAccount , balance , tokenName , connectButtonText , erro
 
     return (  
         <div className="">
-                {errorMessage}
+                {/* {errorMessage} */}
                 <div className="" style={{backgroundColor : "grey", fontWeight: "300" , width: "300px" , padding: "20px"  , color : "white" ,position : "relative", zIndex: "1"}}>
                 <div className="" style={{display: "flex" , flexDirection: "row" , justifyContent : "space-between"}}>
                     <div className="">

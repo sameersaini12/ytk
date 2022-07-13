@@ -3,13 +3,16 @@ import './App.css'
 import {Routes , Route, BrowserRouter} from "react-router-dom";
 import TransactionHistory from "./TransactionHistory"
 import {contractAddress} from "./config";
+import { certificateContractAddress } from "./config";
 import ytkAbi from "./utils/ytkAbi.json"
-
+import certificate from "./utils/certificate.json"
 import Wallet from "./Wallet"
 import Profile from "./Profile"
 import {ethers} from "ethers";
+import Reward from "./Reward";
 
 const token_abi = ytkAbi.abi;
+const certificate_abi = certificate.abi;
 
 function App() {
 
@@ -19,12 +22,14 @@ function App() {
   const [provider , setProvider ] = useState(null);
   const [signer , setSigner ] = useState(null);
   const [contract , setContract] = useState(null);
+  const [certificateContract , setCertificateContract ] = useState(null);
   const [balance , setBalance] = useState(null);
   const [tokenName , setTokenName ] = useState(null);
   const [transferHash , setTransferHash] = useState(null)
   const [connectButtonText , setConnectButtonText] = useState("Connect Wallet");
   const [errorMessage , setErrorMessage] = useState(null);
   const [signAddress , setSignAddress] = useState(null)
+  const [tokenURI , setTokenURI] = useState("");
 
   const connectWallet = async () => {
     try {
@@ -55,7 +60,8 @@ function App() {
 
   const accountChangeHandler = async (newAddress)=> {
     setCurrentAccount(newAddress);
-    await updateEthers()
+    await updateEthers();
+    await updateCertificate();
   }
 
   // Checks if wallet is connected to the correct network
@@ -84,12 +90,18 @@ function App() {
     setContract(tempContract);
     }
 
+  const updateCertificate = () => {
+    let tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+    let tempSigner = tempProvider.getSigner();
+    let tempContract = new ethers.Contract(certificateContractAddress , certificate_abi , tempSigner);
+    setCertificateContract(tempContract);
+  }
+
   const updateBalance = async ()=> {
     let balanceBigN = await contract.balanceOf(currentAccount);
     let balanceNumber = balanceBigN.toNumber()
 
     const decimals = await contract.decimals()
-    console.log(contract)
     let tokenBalance = balanceNumber / Math.pow(10,decimals);
 
     setBalance(balanceNumber);
@@ -123,6 +135,12 @@ const signMessage = async () => {
   await setSignAddress(address);
 }
 
+const mintNFT = async ( _address ,  uri) => {
+  await certificateContract.safeMint(_address , uri);
+}
+
+
+
   useEffect(() => {
     if(contract!=null) {
       updateBalance();
@@ -151,7 +169,13 @@ const signMessage = async () => {
           <BrowserRouter>
             <Routes>
             <Route path="/" element= {<h1>hello</h1>}  />
-            <Route path="/profile" element= {<Profile currentAccount={currentAccount} contract={contract} balance={balance} tokenName={tokenName} connectButtonText={connectButtonText} /> } />
+            <Route path="/profile" element= {<Profile 
+              currentAccount={currentAccount} 
+              contract={contract} balance={balance} 
+              tokenName={tokenName} 
+              connectButtonText={connectButtonText} 
+              certificateContract = {certificateContract}
+            /> } />
             <Route path="/wallet" element= {<Wallet 
               defaultAccount={currentAccount}
               balance = {balance}
@@ -162,6 +186,10 @@ const signMessage = async () => {
               handleTransfer={handleTransfer}
               /> } />
             <Route path="/transactionhistory" element= {<TransactionHistory />} />
+            <Route path="/reward" element={<Reward 
+              mintNFT = {mintNFT}
+              
+            /> } />
             {/* <Route path="/login" element= {<Login />} /> */}
             {/* <Route path="/register" element= {<Register signMessage={signMessage} signAddress={signAddress} />} /> */}
             </Routes>

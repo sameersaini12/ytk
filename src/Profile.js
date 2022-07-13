@@ -5,9 +5,10 @@ import { generateRandomAvatarOptions } from './avatar';
 import Avatar from 'avataaars';
 import { Button } from "@material-ui/core";
 import Popup from "./Popup";
+import im from "./img/sad.png"
 
 
-function Profile({currentAccount , contract , balance , tokenName ,connectButtonText}) {
+function Profile({currentAccount , contract , balance , tokenName ,connectButtonText , certificateContract}) {
 
   const [avatarOptions, setAvatarOptions] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +18,7 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
   const [updateName , setUpdateName] = useState("");
   const [updateEmail , setUpdateEmail] = useState("");
   const [updateRollNo , setUpdateRollNo] = useState("");
+  const [tokenURI , setTokenURI] = useState([])
   
   const togglePopup = () => {
     setIsOpen(!isOpen);
@@ -36,14 +38,28 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
     }
   }
 
+  const getTokenURI = async (id) => {
+    let tempURI = await certificateContract.tokenURI(id);
+    // console.log("URI" + tempURI)
+  }
+
+  const getCertificateIds= async() => {
+    let temp = await certificateContract.getAllCertificates(currentAccount);
+    let ans=[]
+    temp.map(async (item)=> {
+      ans[item.toNumber()] = await certificateContract.tokenURI(item.toNumber());
+    })
+    setTokenURI(ans);
+  }
+
   const getProfile = async() => {
     try {
         let updatedProfile = await contract.getProfile(currentAccount);
         setName(updatedProfile.name);
         setEmail(updatedProfile.email);
         setRollNo(updatedProfile.rollno);
+        getCertificateIds();
       } catch(error) {
-      console.log(error);
     }
   }
 
@@ -55,10 +71,14 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
     setUpdateRollNo("");
   }; 
 
+  
+
   useEffect(() => {
     let avatar = generateRandomAvatarOptions();
     setAvatarOptions(avatar);
-    getProfile();
+    
+      getProfile();
+    
   }, []);
 
   return (
@@ -166,27 +186,67 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
         </div>
 
       </div>
-        <div className='' style={{color : "white" , margin : "70px 0 0 12vw"}}>
-          <div className='' style={{fontSize : "22px" , fontWeight : "500"}}>
+
+        
+        
+        {/* <img src={tokenURI} alt="certificate" /> */}
+
+        {/* {console.log(tokenURI)} */}
+
+        <div className='' style={{color : "white" , margin : "70px 0 0 9vw" , paddingBottom : "50px"}}>
+          <div className='' style={{fontSize : "22px" , fontWeight : "500" , marginBottom : "30px"}}>
             My Collections
           </div>
+        
+        {(tokenURI.length === 0) ?
+        <div style={{display: "flex" , justifyContent : "center" , marginLeft : "-70px" , alignItems : "center"}}>
+            <img style={{height: "190px" , width: "190px"}} src={im} />
         </div>
-        <div className='' style={{ margin : "10vw 0 0 12vw" , width: "75vw",display : "flex" , justifyContent: "space-between"}}>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px" , display : "inline-block"}}>
+          : (
+          <div className='' style={{ display : "flex"}}>
+          {tokenURI.map((item) => {
+            return (
+              <div className="" style={{width: "350px" ,padding : "10px" , height : "auto" , backgroundColor : "#3b4380"  , borderRadius : "15px" , marginLeft : "30px"}}>
+                        <div style={{height: "250px" }} >
+                            <img style={{height: "100%" , width : "100%"   , borderRadius : "15px"}} src={item} alt="" />
+                        </div>
+                        <div style={{display : "flex " , flexDirection : "row" , justifyContent : "start" , margin: "10px"}}>
+                        <Avatar
+                            style={{ height: "55px" , width: "55px"  }}
+                            avatarStyle='Circle'
+                            {...avatarOptions }
+                            />
+                            <div>
+                                <div style={{color : "white" , fontSize : "25px" , fontWeight : "500"}}>
+                                    Certificate No {}
+                                </div>
+                                <div style={{color  :"gray"}}>
+                                    Digital copy of certificate
+                                </div>
+                            </div>
+                        </div>
+                        {/* <div style={{color : "white" , fontWeight : "500" , margin : "10px" , fontSize : "18px"}}>
+                            <div style={{color : "white"}}>
+                                Amount
+                            </div>
+                            <div style={{display : "flex" , flexDirection : "row" , justifyContent : "space-between"}}>
+                                <div style={{color : "#bae314"}}>
+                                    100 YTK
+                                </div>
+                                <div>
+                                    Rs. 3,000
+                                </div>
+                            </div>
+                        </div> */}
+
+                    </div>
+            )
+            //  {console.log(item.toNumber())}
+          })}
           </div>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px", display : "inline-block"}}>
-          </div>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px", display : "inline-block"}}>
-          </div>
-        </div>
-        <div className='' style={{ margin : "10vw 0 0 12vw" , width: "75vw",display : "flex" , justifyContent: "space-between"}}>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px" , display : "inline-block"}}>
-          </div>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px", display : "inline-block"}}>
-          </div>
-          <div className='' style={{height: "370px" , width : "340px" , backgroundColor : "#24294f" , borderRadius : "10px", display : "inline-block"}}>
-          </div>
-        </div>
+  )
+      }
+      </div>
       </div>
     </div>
   )
