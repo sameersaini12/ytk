@@ -1,20 +1,42 @@
 import { Button } from "@material-ui/core";
 import React,{useState} from "react";
+import { IoWalletOutline } from "react-icons/io5";
+import "./Reward.css"
+import { CgProfile } from "react-icons/cg";
 import {create } from "ipfs-http-client";
-const client = create('https://ipfs.infura.io:5001/api/v0')
+import { Link } from "react-router-dom";
+import Wallet from "./Wallet";
+
+const client = create('https://ipfs.infura.io:5001/api/v0');
 
 
-const Reward = ({mintNFT}) => {
 
+
+const Reward = ({mintNFT , currentAccount , balance , tokenName , connectButtonText , errorMessage , connectWallet , handleTransfer}) => {
     const [nftImage, setNftImage] = useState("");
      const hiddenUploadImage = React.useRef(null);
      const [address , setAddress ] = useState("");
+     const [nftName , setNFTName ] = useState("");
+     const [nftDiscription  , setNFTDiscription  ] = useState("");
+     const [nftMetaData , setNFTMetaData] = useState("");
+     const [openWallet  ,setOpenWallet] = useState(false);
 
      const addNFT = async () => {
         let address_ = address;
     
         try {
-            await mintNFT(address_,nftImage);
+            let temp = {
+                name : nftName,
+                image : nftImage,
+                description : nftDiscription
+            }
+            let jsonObj = JSON.stringify(temp);
+            let added = await client.add(jsonObj)
+            console.log(added);
+            let url = `https://ipfs.infura.io/ipfs/${added.path}`
+            console.log(url);
+            setNFTMetaData(url)
+            await mintNFT(address_,url);
         } catch(error) {
           console.log("Error submitting new NFT", error);
         }
@@ -45,11 +67,42 @@ const Reward = ({mintNFT}) => {
         hiddenUploadImage.current.click();
       }
 
+      const handleWalletOpen = () => {
+        setOpenWallet(!openWallet);
+      }
+
     return (
         <div className="" style={{  backgroundColor : "#0A0B1E" }}>
-            <div className='' style={{height: "100px" , backgroundColor : "#24294f" , width: "100%"}}>
-                {/* <img src={} alt="" /> */}
+            <div className='' style={ { padding: "0px 10vw 0px 10vw" , height: "100px" , backgroundColor : "#24294f" , color : "white" , display : "flex" , justifyContent : "space-between" , alignItems : "center"}}>
+                <div style={{fontWeight : "600" , fontSize : "25px"}}>
+                    <span style={{color : "#50b7f5"}}>Digi</span>Block
+                </div>
+                <div style={{display : "flex" , justifyContent: "space-between" , width : "30vw"}}>
+                    <div style={{fontSize : "18px"}}>
+                        <a href="#uploadcertificate" style={{textDecoration : "none" , color : "white"}}>Upload Certificate</a>
+                    </div>
+                    <div className="navItem" style={{fontSize : "18px"}}>
+                        <Link to="/owner" style={{textDecoration : "none" , color : "white"}}> Find Owner </Link>
+                    </div>
+                    <div>
+                       <Link to="/profile" style={{color : "white"}}> <CgProfile size={30} /> </Link>
+                    </div>
+                    <div>
+                       <button onClick={handleWalletOpen} style={{background: "none", cursor: "pointer" , border : "none" , outline : "none" , color : "white" , position : "relative"}} > <IoWalletOutline size={30} /> </button>
+                       {openWallet && <Wallet defaultAccount={currentAccount}
+                        balance = {balance}
+                        tokenName={tokenName}
+                        connectButtonText={connectButtonText}
+                        errorMessage={errorMessage}
+                        connectWalletHandler={connectWallet}
+                        handleTransfer={handleTransfer}
+                        handleWalletOpen = {handleWalletOpen}
+                        /> }
+                    </div>
+                </div>
             </div>
+            
+            
             <div className="" style={{display : "flex" , flexDirection : "row" , justifyContent : "space-between" , padding: "70px 10vw 0 10vw"}}>
                 <div style={{color : "white" , width: "50%"}}>
                    <div style={{fontSize : "55px" , color : "lightgray"}}>
@@ -98,8 +151,8 @@ const Reward = ({mintNFT}) => {
                 </div>
             </div>
 
-            <div id="uploadcertificate" style={{ height : "70vh" , width: "50%" , marginLeft : "25%" , marginTop : "200px" , display : "flex" , alignItems : "center" , flexDirection : "column"}}>
-                <div style={{color : "white" , fontSize : "30px" , fontWeight : "600"}} >Provide Certificate to Studnet Address</div>
+            <div id="uploadcertificate" style={{paddingBottom: "100px" , width: "50%" , marginLeft : "25%" , marginTop : "200px" , display : "flex" , alignItems : "center" , flexDirection : "column"}}>
+                <div style={{color : "white" , fontSize : "30px" , fontWeight : "600"}} >Provide Certificate to Student Address</div>
                 <input 
                     style={{marginTop :"50px", color : "white" , background: "transparent" , width: "90%" , height : "40px"  ,border: "none" , borderBottom : "2px solid grey", outline : "none",borderRadius : "8px" , paddingLeft : "10px"}} 
                     onChange={(e) => setAddress(e.target.value)} value={address} placeholder="Address" type="text" />
@@ -113,8 +166,14 @@ const Reward = ({mintNFT}) => {
                     <img src={nftImage} alt="nftImage" style={{width : "500px" , marginLeft : "5%" , height: "auto" , marginBottom : "20px"}} /> :
                     ""
                 }
-                
-                
+                <input 
+                    style={{marginTop :"50px", color : "white" , background: "transparent" , width: "90%" , height : "40px"  ,border: "none" , borderBottom : "2px solid grey", outline : "none",borderRadius : "8px" , paddingLeft : "10px"}} 
+                    onChange={(e) => setNFTName(e.target.value)} value={nftName} placeholder="Name of Event" type="text" />
+                <br />
+                <input 
+                    style={{marginTop :"50px", color : "white" , background: "transparent" , width: "90%" , height : "40px"  ,border: "none" , borderBottom : "2px solid grey", outline : "none",borderRadius : "8px" , paddingLeft : "10px"}} 
+                    onChange={(e) => setNFTDiscription(e.target.value)} value={nftDiscription} placeholder="Description" type="text" />
+                <br />
                 <button 
                     style={{height : "45px" , width: "95%"  , backgroundColor : " #50b7f5" , border : "none" , color : "white" ,fontWeight : "700 " , borderRadius : "30px" ,cursor : "pointer"}}
                 onClick={uploadNFT}>Upload Certificate</button>

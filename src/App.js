@@ -10,6 +10,7 @@ import Wallet from "./Wallet"
 import Profile from "./Profile"
 import {ethers} from "ethers";
 import Reward from "./Reward";
+import Owner from "./Owner";
 
 const token_abi = ytkAbi.abi;
 const certificate_abi = certificate.abi;
@@ -168,7 +169,6 @@ const mintNFT = async ( _address ,  uri) => {
         <div className="app">
           <BrowserRouter>
             <Routes>
-            <Route path="/" element= {<h1>hello</h1>}  />
             <Route path="/profile" element= {<Profile 
               currentAccount={currentAccount} 
               contract={contract} balance={balance} 
@@ -186,12 +186,19 @@ const mintNFT = async ( _address ,  uri) => {
               handleTransfer={handleTransfer}
               /> } />
             <Route path="/transactionhistory" element= {<TransactionHistory />} />
-            <Route path="/reward" element={<Reward 
+            <Route path="/" element={<Reward 
               mintNFT = {mintNFT}
-              
+              defaultAccount={currentAccount}
+              balance = {balance}
+              tokenName={tokenName}
+              connectButtonText={connectButtonText}
+              errorMessage={errorMessage}
+              connectWalletHandler={connectWallet}
+              handleTransfer={handleTransfer}
             /> } />
-            {/* <Route path="/login" element= {<Login />} /> */}
-            {/* <Route path="/register" element= {<Register signMessage={signMessage} signAddress={signAddress} />} /> */}
+            <Route path="/owner" element = {
+              <Owner certificateContract={certificateContract} currentAccount={currentAccount} />
+            } />
             </Routes>
           </BrowserRouter>
           

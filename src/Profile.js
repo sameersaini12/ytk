@@ -8,7 +8,7 @@ import Popup from "./Popup";
 import im from "./img/sad.png"
 
 
-function Profile({currentAccount , contract , balance , tokenName ,connectButtonText , certificateContract}) {
+function Profile({currentAccount , contract , balance , tokenName ,connectButtonText , certificateContract , deleteNFT }) {
 
   const [avatarOptions, setAvatarOptions] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -38,16 +38,40 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
     }
   }
 
-  const getTokenURI = async (id) => {
-    let tempURI = await certificateContract.tokenURI(id);
-    // console.log("URI" + tempURI)
+  const getTokenURI = async () => {
+    let tempURI = await certificateContract.tokenURI(0);
+    if(tempURI) {
+      decayNFT()
+    }
+    console.log("URI" + tempURI)
+  }
+  //  getTokenURI()
+
+  const decayNFT = async () => {
+    await deleteNFT(0);
   }
 
+
+  
+  const getdetails = async(url) =>{
+    
+
+       var maindata  = await fetch(url) // first step
+      .then(response => response.json()) // second step
+      .then(data => {
+         return data 
+      })
+      .catch(error => console.error(error))
+      console.log(maindata);
+      return maindata
+
+  }
   const getCertificateIds= async() => {
     let temp = await certificateContract.getAllCertificates(currentAccount);
     let ans=[]
     temp.map(async (item)=> {
-      ans[item.toNumber()] = await certificateContract.tokenURI(item.toNumber());
+      ans[item.toNumber()] = await getdetails(await certificateContract.tokenURI(item.toNumber()));
+      console.log(ans[item.toNumber()]);
     })
     setTokenURI(ans);
   }
@@ -73,12 +97,12 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
 
   
 
-  useEffect(() => {
+  useEffect( () => {
     let avatar = generateRandomAvatarOptions();
     setAvatarOptions(avatar);
-    
+    console.log("skkldjk")
       getProfile();
-    
+      // console.log(await certificateContract.tokenURI(0));
   }, []);
 
   return (
@@ -205,44 +229,29 @@ function Profile({currentAccount , contract , balance , tokenName ,connectButton
           : (
           <div className='' style={{ display : "flex"}}>
           {tokenURI.map((item) => {
-            return (
-              <div className="" style={{width: "350px" ,padding : "10px" , height : "auto" , backgroundColor : "#3b4380"  , borderRadius : "15px" , marginLeft : "30px"}}>
+            
+              
+              return (
+                <div className="" style={{width: "20vw" ,padding : "10px" , height : "auto" , backgroundColor : "#3b4380"  , borderRadius : "15px" , marginLeft : "30px"}}>
                         <div style={{height: "250px" }} >
-                            <img style={{height: "100%" , width : "100%"   , borderRadius : "15px"}} src={item} alt="" />
+                        <img style={{height: "100%" , width : "100%"   , borderRadius : "15px"}} src={item.image} alt="" />
                         </div>
                         <div style={{display : "flex " , flexDirection : "row" , justifyContent : "start" , margin: "10px"}}>
-                        <Avatar
-                            style={{ height: "55px" , width: "55px"  }}
-                            avatarStyle='Circle'
-                            {...avatarOptions }
-                            />
+                        
                             <div>
-                                <div style={{color : "white" , fontSize : "25px" , fontWeight : "500"}}>
-                                    Certificate No {}
+                                <div style={{color : "white" , fontSize : "25px" }}>
+                                    <span style={{ fontWeight : "500"}}>Event Name</span>  : {item.name}
                                 </div>
-                                <div style={{color  :"gray"}}>
-                                    Digital copy of certificate
+                                <div style={{color  :"white"}}>
+                                    <span style={{ fontWeight : "500"}}>Event Details</span> : {item.description}
                                 </div>
                             </div>
                         </div>
-                        {/* <div style={{color : "white" , fontWeight : "500" , margin : "10px" , fontSize : "18px"}}>
-                            <div style={{color : "white"}}>
-                                Amount
-                            </div>
-                            <div style={{display : "flex" , flexDirection : "row" , justifyContent : "space-between"}}>
-                                <div style={{color : "#bae314"}}>
-                                    100 YTK
-                                </div>
-                                <div>
-                                    Rs. 3,000
-                                </div>
-                            </div>
-                        </div> */}
-
-                    </div>
-            )
-            //  {console.log(item.toNumber())}
-          })}
+              </div>
+              )
+            // console.log(item);
+            
+            })}
           </div>
   )
       }

@@ -6,7 +6,7 @@ import { MdZoomOutMap } from "react-icons/md";
 import {Link} from "react-router-dom";
 
 
-function Wallet({defaultAccount , balance , tokenName , connectButtonText , errorMessage , connectWalletHandler , handleTransfer}) {
+function Wallet({defaultAccount , balance , tokenName , connectButtonText , errorMessage , connectWalletHandler , handleTransfer , handleWalletOpen}) {
     
     const [transferNext , setTransferNext] = useState(1);
     const [showWalletMenu , setShowWalletMenu] = useState(false);
@@ -60,8 +60,7 @@ function Wallet({defaultAccount , balance , tokenName , connectButtonText , erro
 }
 
     return (  
-        <div className="">
-                {/* {errorMessage} */}
+        <div style={{position : "absolute" , marginLeft : "-13%"}} className="">
                 <div className="" style={{backgroundColor : "grey", fontWeight: "300" , width: "300px" , padding: "20px"  , color : "white" ,position : "relative", zIndex: "1"}}>
                 <div className="" style={{display: "flex" , flexDirection: "row" , justifyContent : "space-between"}}>
                     <div className="">
@@ -75,21 +74,8 @@ function Wallet({defaultAccount , balance , tokenName , connectButtonText , erro
                     <div className="">
                         Token Wallet
                     </div>
-                    {showWalletMenu ?
-                        <div className="" id="walletMenuList" style={{display: "flex", flexDirection: "column", position: "absolute" , backgroundColor : "#0c1130", zIndex:"2" , top:"40px" , left : "46%" , width:"45%", borderRadius: "6px"}}>
-                            <button className="" style={{fontWeight : "300",background : "transparent", border : "none" , outline : "none" , color :'white' , padding : "15px"}}>Button 1</button>
-                            <button className="" style={{fontWeight : "300",background : "transparent", border : "none" , outline : "none" , color :'white' , padding : "15px"}}>Button 1</button>
-                            <button className="" style={{fontWeight : "300",background : "transparent", border : "none" , outline : "none" , color :'white' , padding : "15px"}}>Button 1</button>
-                        </div> 
-                    : (null)
-                    }
                     <div className="">
-                        {showWalletMenu ? 
-                        <button style={{backgroundColor : "transparent" , border : "none" , color : "white" , cursor: "pointer"}} onClick={closeWalletMenu}><VscChromeClose size={18} /></button>
-                        :
-                        <button style={{backgroundColor : "transparent" , border : "none" , color : "white" , cursor: "pointer"}} onClick={walletThreeDotHandler}><VscEllipsis size={18} /></button>
-                    }
-                        
+                        <button onClick={handleWalletOpen} style={{backgroundColor : "transparent" , border : "none" , color : "white" , cursor: "pointer"}} ><VscChromeClose size={18} /></button>   
                     </div>
                 </div>
                 <hr style={{ backgroundColor: "white", height: 0.1 , width : "300px"}} />
